@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Option Chain Data</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Option Chain Data</h1>
+
+    <table id="optionTable">
+        <thead>
+            <tr>
+                <th>Strike Price</th>
+                <th>Call Option Open</th>
+                <th>Call Option Close</th>
+                <th>Call Option LTP</th>
+                <th>Put Option Open</th>
+                <th>Put Option Close</th>
+                <th>Put Option LTP</th>
+            </tr>
+        </thead>
+        <tbody id="optionData">
+            <!-- Option chain data will be populated here -->
+        </tbody>
+    </table>
+
+    <script>
+        // Function to fetch option chain data and update the table
+        function fetchOptionChainData() {
+            // Make an API call or fetch the data from the server
+            // You can replace the URL below with your actual API endpoint
+            fetch('https://groww.in/v1/api/option_chain_service/v1/option_chain/nifty?expiry=2023-05-18')
+                .then(response => response.json())
+                .then(data => {
+                    // Extract the option chains data from the response
+                    const optionChains = data.optionChains;
+
+                    // Determine the middle index
+                    const middleIndex = Math.floor(optionChains.length / 2);
+
+                    // Extract the middle three strike prices
+                    const middleThreeStrikes = optionChains.slice(middleIndex - 1, middleIndex + 2);
+
+                    // Create a table row for each option chain
+                    const tableBody = document.getElementById('optionData');
+                    tableBody.innerHTML = ''; // Clear existing data
+
+                    middleThreeStrikes.forEach(option => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${option.strikePrice}</td>
+                            <td>${option.callOption.open}</td>
+                            <td>${option.callOption.close}</td>
+                            <td>${option.callOption.ltp}</td>
+                            <td>${option.putOption.open}</td>
+                            <td>${option.putOption.close}</td>
+                            <td>${option.putOption.ltp}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching option chain data:', error);
+                });
+        }
+
+        // Call the function initially to populate the table
+        fetchOptionChainData();
+
+        // Refresh the data every 3 seconds
+        setInterval(fetchOptionChainData, 3000);
+    </script>
+</body>
+</html>
+
